@@ -8,6 +8,7 @@ import NotefulContext from '../NotefulContext/NotefulContext'
 
 export default class NoteListMain extends React.Component {
   static contextType = NotefulContext
+  
   render(){
     return (
       <section className='NoteListMain'>

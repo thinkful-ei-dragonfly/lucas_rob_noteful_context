@@ -18,39 +18,73 @@ class App extends Component {
     folders: [],
   };
 
+  // moving formulas over here for test/now to put into context instead
+  // findFolder = (folders=[], folderId) =>
+  //   folders.find(folder => folder.id === folderId)
+
+  // findNote = (notes=[], noteId) =>
+  //   notes.find(note => note.id === noteId)
+
+  // getNotesForFolder = (notes=[], folderId) => (
+  // (!folderId)
+  //   ? notes
+  //   : notes.filter(note => note.folderId === folderId)
+  // )
+
+  // countNotesForFolder = (notes=[], folderId) =>
+  //   notes.filter(note => note.folderId === folderId).length
+
+
+
   componentDidMount() {
     // fake date loading from API call
     // setTimeout(() => this.setState(dummyStore), 600)
 
+    // RES OK??
+
     Promise.all([
-      fetch('http://localhost:9090/folders').then(res => res.json())
-      , fetch('http://localhost:9090/notes').then(res => res.json())])
-    .then(results => {
-      this.setState({
-        notes: results[1],
-        folders: results[0]
+      fetch('http://localhost:9090/folders')
+      , fetch('http://localhost:9090/notes')])
+      .then( (fetchResults) => {
+        console.log(fetchResults);
+        // debugger;
+        const foldersJson = fetchResults[0].json();
+        const notesJson = fetchResults[1].json();
+        return [foldersJson, notesJson];
+      })
+      .then(results => {
+        console.log(results);
+        debugger;
+        this.setState({
+          notes: results[1],
+          folders: results[0]
       });
     })
   }
+
 
   renderNavRoutes() {
     // const { notes, folders } = this.state
     const contextValue = {
       notes: this.state.notes,
-      folders: this.state.folders
+      folders: this.state.folders,
+      // findFolder: this.findFolder,
+      // findNote: this.findNote,
+      // getNotesForFolder: this.getNotesForFolder,
+      // countNotesForFolder: this.countNotesForFolder,
     }
+
     return (
       <>
         {['/', '/folder/:folderId'].map(path =>
-          <NotefulContext.Provider
-            value={contextValue}>
+      
           <Route
             exact
             key={path}
             path={path}
             component={NoteListNav}
           />
-        </NotefulContext.Provider>
+  
         )}
         <Route
           path='/note/:noteId'
@@ -80,10 +114,10 @@ class App extends Component {
 
   renderMainRoutes() {
     // const { notes, folders } = this.state
-    const contextValue = {
-      notes: this.state.notes,
-      folders: this.state.folders
-    }
+    // const contextValue = {
+    //   notes: this.state.notes,
+    //   folders: this.state.folders
+    // }
     return (
       <>
         {['/', '/folder/:folderId'].map(path =>
@@ -94,7 +128,7 @@ class App extends Component {
             path={path}
             render={routeProps => {
               const { folderId } = routeProps.match.params
-              const notesForFolder = getNotesForFolder(contextValue.notes, folderId)
+              const notesForFolder = getNotesForFolder(this.state.notes, folderId)
               return (
                 <NoteListMain
                   {...routeProps}
@@ -108,12 +142,12 @@ class App extends Component {
         <Route
           path='/note/:noteId'
           render={routeProps => {
-            const { noteId } = routeProps.match.params
-            const note = findNote(contextValue.notes, noteId)
+            // const { noteId } = routeProps.match.params
+            // const note = findNote(this.state.notes, noteId)
             return (
               <NotePageMain
                 {...routeProps}
-                note={note}
+                // note={note}
               />
             )
           }}
@@ -128,7 +162,7 @@ class App extends Component {
             return (
               <AddNote
                 {...routeProps}
-                folders={contextValue.folders}
+                folders={this.state.folders}
               />
             )
           }}
